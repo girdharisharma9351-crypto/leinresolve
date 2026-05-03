@@ -18,7 +18,7 @@ export function FAQ() {
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="w-full space-y-4">
+        <Accordion className="w-full space-y-4">
           <AccordionItem value="item-1" className="border border-zinc-800 bg-zinc-900/50 rounded-xl px-6 data-[state=open]:bg-zinc-900 transition-colors">
             <AccordionTrigger className="text-left text-lg font-bold text-white hover:text-white hover:no-underline py-6">
               Why can't I just go to my local bank branch?
