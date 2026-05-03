@@ -10,10 +10,23 @@ function CheckoutContent() {
   const draftType = searchParams.get("draftType") || "Unknown Draft";
   const name = searchParams.get("name") || "[Name]";
   const bank = searchParams.get("bank") || "[Bank]";
+  const bankAccount = searchParams.get("bankAccount") || "[Account Number]";
   const state = searchParams.get("state") || "[State]";
   const district = searchParams.get("district") || "[District]";
+  const disputedAmount = searchParams.get("disputedAmount") || "[Amount]";
+  const transactionDate = searchParams.get("transactionDate") || "[Date]";
+  const complaintNumber = searchParams.get("complaintNumber") || "N/A";
 
-  const messageTemplate = `Hello, I have paid ₹499 for the ${draftType}. My details:\nName: ${name}\nBank: ${bank}\nState: ${state}\nDistrict: ${district}\n\nAttached is my screenshot.`;
+  const messageTemplate = `PAYMENT VERIFICATION & CASE FILE
+--------------------------
+Draft Type: ${draftType}
+Customer Name: ${name}
+Bank: ${bank} | Acc: ${bankAccount}
+State: ${state} | District: ${district}
+Disputed Amt: ₹${disputedAmount} | Date: ${transactionDate}
+Complaint No: ${complaintNumber}
+--------------------------
+Screenshot attached below. Please generate my representation.`;
   const whatsappUrl = `https://wa.me/919352553071?text=${encodeURIComponent(messageTemplate)}`;
 
   return (

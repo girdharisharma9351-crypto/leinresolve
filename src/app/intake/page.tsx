@@ -4,19 +4,22 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 const schema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().min(10, "Valid phone number is required"),
   bankName: z.string().min(1, "Please select a bank"),
+  bankAccount: z.string().regex(/^\d{11,16}$/, "Account number must be 11-16 digits"),
   state: z.string().min(1, "Please select a state"),
   district: z.string().min(1, "District/City is required"),
   investigatingOfficer: z.string().optional(),
   complaintNumber: z.string().optional(),
+  disputedAmount: z.string().min(1, "Disputed amount is required"),
+  transactionDate: z.string().min(1, "Transaction date is required"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -25,6 +28,7 @@ function IntakeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const draftType = searchParams.get("draftType") || "Unknown Draft";
+  const [isSaved, setIsSaved] = useState(false);
   
   const {
     register,
@@ -35,14 +39,21 @@ function IntakeForm() {
   });
 
   const onSubmit = (data: FormData) => {
-    const params = new URLSearchParams({
-      draftType,
-      name: data.fullName,
-      bank: data.bankName,
-      state: data.state,
-      district: data.district,
-    });
-    router.push(`/checkout?${params.toString()}`);
+    setIsSaved(true);
+    setTimeout(() => {
+      const params = new URLSearchParams({
+        draftType,
+        name: data.fullName,
+        bank: data.bankName,
+        bankAccount: data.bankAccount,
+        state: data.state,
+        district: data.district,
+        disputedAmount: data.disputedAmount,
+        transactionDate: data.transactionDate,
+        complaintNumber: data.complaintNumber || "N/A"
+      });
+      router.push(`/checkout?${params.toString()}`);
+    }, 1000);
   };
 
   return (
@@ -111,6 +122,40 @@ function IntakeForm() {
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-300">Bank Account Number *</label>
+              <input
+                {...register("bankAccount")}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+                placeholder="e.g. 123456789012"
+              />
+              {errors.bankAccount && <p className="text-red-500 text-sm">{errors.bankAccount.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-300">Disputed Amount (₹) *</label>
+              <input
+                {...register("disputedAmount")}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-red-500 transition-colors"
+                placeholder="e.g. 50000"
+              />
+              {errors.disputedAmount && <p className="text-red-500 text-sm">{errors.disputedAmount.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-zinc-300">Transaction Date *</label>
+              <input
+                {...register("transactionDate")}
+                type="date"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-red-500 transition-colors [color-scheme:dark]"
+              />
+              {errors.transactionDate && <p className="text-red-500 text-sm">{errors.transactionDate.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-2">
               <label className="text-sm font-bold text-zinc-300">State *</label>
               <select
                 {...register("state")}
@@ -163,8 +208,20 @@ function IntakeForm() {
           </div>
 
           <div className="pt-6">
-            <Button type="submit" size="lg" className="w-full h-14 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg shadow-emerald-900/20">
-              Proceed to Secure Payment
+            <Button 
+              type="submit" 
+              size="lg" 
+              disabled={isSaved}
+              className="w-full h-14 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg shadow-emerald-900/20 disabled:opacity-100 disabled:bg-emerald-600"
+            >
+              {isSaved ? (
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="w-6 h-6 animate-pulse" />
+                  Data Saved Successfully
+                </span>
+              ) : (
+                "Proceed to Secure Payment"
+              )}
             </Button>
           </div>
         </form>
